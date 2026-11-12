@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bahati11</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0c0a09;
+            --page-bg: #fcf8f2;
+            --page-bg-glass: rgba(252, 248, 242, 0.75);
+            --text-main: #2c221e;
+            --text-muted: #5c4d44;
+            --accent-gold: #b08d4b;
+            --gold-border: rgba(176, 141, 75, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lora', serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            padding: 1rem;
+        }
+
+        .ambient-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #261f18 0%, #0c0a09 100%);
+            z-index: -1;
+        }
+
+        .book {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 420px;
+            background: var(--page-bg);
+            border-radius: 4px 14px 14px 4px;
+            box-shadow: 0 35px 60px rgba(0, 0, 0, 0.85),
+                        inset 15px 0 30px rgba(0, 0, 0, 0.06),
+                        inset 2px 0 5px rgba(0, 0, 0, 0.1);
+            border-left: 12px solid #2b2118;
+            border-right: 1px solid #d3c2ae;
+            border-top: 1px solid #d3c2ae;
+            border-bottom: 1px solid #d3c2ae;
+            overflow: hidden;
+            perspective: 2500px;
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: var(--page-bg);
+            background-image: linear-gradient(90deg, rgba(0,0,0,0.05) 0%, rgba(255,255,255,0) 10%);
+            padding: 3rem 3.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            transition: transform 0.9s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease-in-out;
+            backface-visibility: hidden;
+            will-change: transform, opacity;
+            z-index: 1;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .page.active {
+            transform: rotateY(0deg);
+            opacity: 1;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        .page.turned {
+            transform: rotateY(-180deg);
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .page.cover {
+            background: linear-gradient(135deg, #2b2118 0%, #17110d 100%);
+            color: #f4ece1;
+            border: 3px solid var(--accent-gold);
+            border-left: 20px solid #0f0a07;
+            border-radius: 6px 14px 14px 6px;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 25px 0 40px rgba(0,0,0,0.7), inset -5px 0 15px rgba(176,141,75,0.1);
+        }
+
+        .cover .ornament {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            letter-spacing: 0.4em;
+            margin-bottom: 1.2rem;
+        }
+
+        .cover h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #fffaf0;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.75rem;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .cover p {
+            font-style: italic;
+            color: var(--accent-gold);
+            font-size: 1.15rem;
+            margin-bottom: 3rem;
+            letter-spacing: 0.02em;
+        }
+
+        .open-btn {
+            background: rgba(176, 141, 75, 0.15);
+            border: 1px solid var(--gold-border);
+            padding: 0.75rem 1.6rem;
+            border-radius: 4px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .open-btn:hover {
+            background: var(--accent-gold);
+            color: #0c0a09;
+            box-shadow: 0 0 20px rgba(176, 141, 75, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .page-content h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: #1c140d;
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 0.4rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .page-content p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--text-main);
+        }
+
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-top: 0.4rem;
+        }
+
+        .link-item {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            background: var(--page-bg-glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid rgba(227, 213, 194, 0.6);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .link-item svg, .link-item img {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            object-fit: contain;
+
+            filter: sepia(1) saturate(3) hue-rotate(5deg) brightness(0.85);
+            transition: all 0.3s ease;
+        }
+
+        .link-item svg.github-gold {
+            fill: #b08d4b;
+            filter: none;
+        }
+
+        .link-item svg.mail-gold {
+            stroke: #b08d4b;
+            filter: none;
+        }
+
+        .link-item:hover {
+            background: rgba(28, 20, 13, 0.85);
+            backdrop-filter: blur(12px);
+            color: #fdfbf7;
+            border-color: rgba(176, 141, 75, 0.5);
+            transform: translateX(6px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .link-item:hover svg, .link-item:hover img {
+            transform: scale(1.15);
+            filter: sepia(1) saturate(4) hue-rotate(5deg) brightness(1.1);
+        }
+
+        .link-item:hover svg.mail-gold {
+            stroke: #d4af37;
+            filter: drop-shadow(0 0 3px rgba(176, 141, 75, 0.6));
+        }
+
+        .link-item:hover svg.github-gold {
+            fill: #d4af37;
+            filter: drop-shadow(0 0 3px rgba(176, 141, 75, 0.6));
+        }
+
+        .page-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #e3d5c2;
+            padding-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .nav-controls {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease;
+        }
+
+        .nav-controls.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--gold-border);
+            color: var(--accent-gold);
+            padding: 0.7rem 1.6rem;
+            border-radius: 4px;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent-gold);
+            color: #0c0a09;
+            box-shadow: 0 0 20px rgba(176, 141, 75, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        @media (max-width: 650px) {
+            .book {
+                height: 450px;
+            }
+            .page {
+                padding: 2rem 1.5rem;
+            }
+            .cover h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg"></div>
+
+    <script>
+        function playPageSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const bufferSize = audioCtx.sampleRate * 0.15;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                filter.Q.setValueAtTime(1.5, audioCtx.currentTime);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0.35, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+
+                noise.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                noise.start();
+            } catch (e) {}
+        }
+    </script>
+
+    <div class="book">
+
+        <div class="page cover active" id="page-0">
+            <div class="ornament">- XI -</div>
+            <h1>Bahati11</h1>
+            <p>Salut, bienvenue chez moi !</p>
+            <button class="open-btn" onclick="playPageSound(); changePage(1)">Ouvrir !</button>
+        </div>
+
+        <div class="page" id="page-1">
+            <div class="page-content">
+                <h2>À propos</h2>
+                <p style="margin-top: 1rem;">
+                    Je suis un passionné d'aviation et d'informatique en général. Je partage de petits projets et je contribue à des encyclopédies libres, notamment Vikidia et les projets Wikimedia.
+                </p>
+            </div>
+            <div class="page-footer">
+                <span>Bahati11</span>
+                <span>Page I</span>
+            </div>
+        </div>
+
+        <div class="page" id="page-2">
+            <div class="page-content">
+                <h2>Registre des Liens</h2>
+                <div class="links-list" style="margin-top: 0.5rem;">
+
+                    <a href="https://github.com/bahati11-web" target="_blank" rel="noopener noreferrer" class="link-item">
+                        <svg class="github-gold" viewBox="0 0 16 16"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>
+                        GitHub
+                    </a>
+
+                    <a href="https://central.vikidia.org/wiki/User:Bahati11" target="_blank" rel="noopener noreferrer" class="link-item">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Vikidia_V_vectorised.svg" alt="Vikidia">
+                        Vikidia
+                    </a>
+
+                    <a href="https://meta.wikimedia.org/wiki/User:Bahati11" target="_blank" rel="noopener noreferrer" class="link-item">
+                        <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Meta-Wiki_Proposed_logo.svg/960px-Meta-Wiki_Proposed_logo.svg.png" alt="Meta-Wiki">
+                        Meta-Wiki
+                    </a>
+
+                    <a href="mailto:contact@bahati11.is-a.dev" class="link-item">
+                        <svg class="mail-gold" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3.5 7 8.5 6.5L20.5 7"/></svg>
+                        Contact
+                    </a>
+                </div>
+            </div>
+            <div class="page-footer">
+                <span>Bahati11</span>
+                <span>Page II</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav-controls" id="navControls">
+        <button class="btn" id="prevBtn" onclick="playPageSound(); prevPage()">Page précédente</button>
+        <button class="btn" id="nextBtn" onclick="playPageSound(); nextPage()">Page suivante</button>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        const totalPages = 3;
+
+        function updateView() {
+            for (let i = 0; i < totalPages; i++) {
+                const page = document.getElementById(`page-${i}`);
+                page.classList.remove('active', 'turned');
+
+                if (i < currentIndex) {
+                    page.classList.add('turned');
+                } else if (i === currentIndex) {
+                    page.classList.add('active');
+                }
+            }
+
+            const navControls = document.getElementById('navControls');
+            if (currentIndex === 0) {
+                navControls.classList.remove('visible');
+            } else {
+                navControls.classList.add('visible');
+            }
+
+            document.getElementById('prevBtn').disabled = (currentIndex === 0);
+            document.getElementById('nextBtn').disabled = (currentIndex === totalPages - 1);
+        }
+
+        function changePage(index) {
+            if (index >= 0 && index < totalPages) {
+                currentIndex = index;
+                updateView();
+            }
+        }
+
+        function nextPage() {
+            if (currentIndex < totalPages - 1) {
+                currentIndex++;
+                updateView();
+            }
+        }
+
+        function prevPage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateView();
+            }
+        }
+
+        updateView();
+    </script>
+</body>
+</html>
